@@ -1,4 +1,4 @@
-import ChatProvider from "./components/Context/ChatProvider.js";
+import ChatProvider from "./Context/ChatProvider.jsx";
 import { createRoot } from 'react-dom/client'
 import ReactDOM from 'react-dom/client'
 import './index.css'
@@ -7,11 +7,11 @@ import { Provider } from './components/ui/provider'
 import {BrowserRouter} from "react-router-dom"
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <ContextProvider>
-    <BrowserRouter>
-    <Provider>
-      <App />
-    </Provider>
-    </BrowserRouter>
-  </ContextProvider>,
+  <BrowserRouter>
+    <ChatProvider>
+      <Provider>
+        <App />
+      </Provider>
+    </ChatProvider>
+  </BrowserRouter>
 )

@@ -2,6 +2,8 @@ import { Box, Container, Text, Tabs } from "@chakra-ui/react";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+
 
 function Homepage() {
    const navigate = useNavigate();
@@ -10,7 +12,7 @@ function Homepage() {
         const user = JSON.parse(localStorage.getItem("userInfo"));
         
         if (user) {
-            navigate.push("/chats");
+            navigate("/chats");
         }
     }, [navigate]);
   return (
