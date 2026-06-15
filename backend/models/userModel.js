@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema(
         password: { type: String, required: true },
         image: {
             type: String,
-            default: "https://cdn-icons-png.flaticon.com/512/6596/6596121.png"
+            default: `https://cdn-icons-png.flaticon.com/512/6596/6596121.png`
         },
     },
     { timestamps: true }
@@ -21,9 +21,12 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 
 
 userSchema.pre('save', async function (next) {
-    if (!this.isModified) {
-        return;
-    }
+    // if (!this.isModified) {
+    //     return;
+    // }
+            if (!this.isModified("password")) {
+                return next();
+        }
 
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

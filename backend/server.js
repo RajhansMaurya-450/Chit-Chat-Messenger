@@ -4,7 +4,7 @@ const connectDB = require("./config/db")
 const app = express();
 const userRoutes = require("./Routes/userRoutes");
 const chatRoutes = require("./Routes/chatRoutes");
-const {chats} = require("./data");
+const { chats } = require("./data");
 dotenv.config();
 connectDB();
 const PORT = process.env.PORT || 2000;

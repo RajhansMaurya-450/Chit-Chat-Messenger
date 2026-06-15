@@ -5,7 +5,7 @@ const protect  = require("../middleware/authMiddleware");
 
 const registerUser = asyncHandler(async (req,res) => {
     const { name, email, password, image } = req.body;
-
+    console.log(image);
     if (!name || !email || !password) {
         res.status(400);
         throw new Error("Please enter all feilds")
@@ -21,14 +21,14 @@ const registerUser = asyncHandler(async (req,res) => {
         name,
         email,
         password,
-        image,
+        image: image || undefined,
     });
-
+    console.log(user);
     if (user) {
         res.status(201).json({
             _id: user._id,
             name: user.name,
-            email: user.eamil,
+            email: user.email,
             image: user.image,
             token: generateToken(user._id),
         });
@@ -47,7 +47,7 @@ const authUser = asyncHandler(async (req, res) => {
         res.json({
             _id: user._id,
             name: user.name,
-            eamil: user.email,
+            email: user.email,
             image: user.image,
             token: generateToken(user._id),
         });
@@ -58,15 +58,24 @@ const authUser = asyncHandler(async (req, res) => {
 });
 
 const allUsers = asyncHandler(async (req, res) => {
+    console.log("alluser ke neeche"+req.query.search);
     const keyword = req.query.search
         ? {
             $or: [ //mogodb query for searching read docs...............
                 { name: { $regex: req.query.search, $options: "i" } },
-                { eamil: { $regex: req.query.search, $options: "i" } },
+                { email: { $regex: req.query.search, $options: "i" } },
             ],
         }
         : {};
-    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+    const users = await User.find({ ...keyword }).find({ _id: { $ne: req.user._id } });
+    
+    // const users = await User.find({
+    //...keyword,
+    //_id: { $ne: req.user._id },
+
+    // });
+    console.log(users);
+    res.send(users);
 });
 
 module.exports = { registerUser, authUser, allUsers };

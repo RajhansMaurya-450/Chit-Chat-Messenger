@@ -1,43 +1,72 @@
-import React, { Children } from 'react'
-import { Button, CloseButton, Dialog, IconButton, Portal, useDisclosure } from "@chakra-ui/react"
+import React from "react";
+import {
+  Button,
+  CloseButton,
+  Dialog,
+  IconButton,
+  Portal,
+  Image,
+  Text,
+} from "@chakra-ui/react";
+import { FiEye } from "react-icons/fi";
 
-const ProfileDialogs = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+const ProfileDialogs = ({ user, children }) => {
   return (
-    <>
+    <Dialog.Root placement="center" size="cover">
       {children ? (
-        <span onClick={onOpen}>{children}</span>
+        <Dialog.Trigger asChild>
+          <span>{children}</span>
+        </Dialog.Trigger>
       ) : (
-          <IconButton display={{base: "flex"}} icon={<viewIcon/>} onClick={onOpen} />
+        <Dialog.Trigger asChild>
+          <IconButton
+            display={{ base: "flex" }}
+            aria-label="View Profile"
+          >
+            <FiEye />
+          </IconButton>
+        </Dialog.Trigger>
       )}
-    <Dialog.Root size="cover" placement="center" motionPreset="slide-in-bottom">
-      <Dialog.Trigger asChild>
-        <Button variant="ghost" size="sm">
-          my profile
-        </Button>
-      </Dialog.Trigger>
+
       <Portal>
         <Dialog.Backdrop />
+
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Dialog.Title>Dialog Title</Dialog.Title>
+              <Dialog.Title>{user?.name}</Dialog.Title>
+
               <Dialog.CloseTrigger asChild>
                 <CloseButton size="sm" />
               </Dialog.CloseTrigger>
             </Dialog.Header>
-            <Dialog.Body>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+            <Dialog.Body
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              gap={4}
+            >
+              <Image
+                borderRadius="full"
+                boxSize="150px"
+                src={user?.image}
+                alt={user?.name}
+              />
+
+              <Text
+                fontSize={{ base: "28px", md: "30px" }}
+                fontFamily="Work Sans"
+              >
+                Email: {user.email}
+                
+              </Text>
             </Dialog.Body>
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>
-      </Dialog.Root>
-      </>
-  )
-}
-
-
+    </Dialog.Root>
+  );
+};
 
 export default ProfileDialogs;
