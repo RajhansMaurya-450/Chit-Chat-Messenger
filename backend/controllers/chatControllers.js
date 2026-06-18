@@ -39,16 +39,17 @@ const accessChat = asyncHandler(async (req, res) => {
         };
 
         try {
-            console.log("hello4");
+            console.log(chatData);
             const createdChat = await Chat.create(chatData);
 
             const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
                 "users",
                 "-password"
             );
+            console.log(FullChat);
              res.status(200).send(FullChat);
         } catch (error) {
-            console.log("hello3");
+            console.log("hello5");
             res.status(400);
             throw new Error(error.message);
         }
@@ -58,6 +59,7 @@ const accessChat = asyncHandler(async (req, res) => {
 //fetching chats.............
 const fetchChats = asyncHandler(async (req, res) => {
     try {
+       //console.log("fetch chat rouute");
         Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
             .populate("users", "-password")
             .populate("groupAdmin", "-password")
@@ -68,7 +70,7 @@ const fetchChats = asyncHandler(async (req, res) => {
                     path: "latestMessage.sender",
                     select: "name pic eamil"
                 });
-
+               // console.log("hello6.1");
                 res.status(200).send(results);
             });
         
@@ -79,7 +81,7 @@ const fetchChats = asyncHandler(async (req, res) => {
 });
 
 const createGroupChat = asyncHandler(async (req, res) => {
-    
+    //console.log("hello6");
     if (!req.body.users && !req.body.name) {
         return res.status(400).send({ message: "please fill all the fields" });
     }
@@ -95,6 +97,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
             isGroupChat: true,
             groupAdmin: req.user,
         });
+       // console.log("hello7");
         const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
             .populate("users", "-password")
             .populate("groupAdmin", "-password")
