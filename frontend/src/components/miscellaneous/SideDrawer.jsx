@@ -19,16 +19,19 @@ import ChatLoading from "./ChatLoading";
 import UserListItem from "../userAvatar/userListItem";
 
 function SideDrawer() {
-  const { user } = ChatState();
-  const [selectedChat, setSelectedChat] = useState();
-  const [chats, setChats] = useState();
+  // const { user } = ChatState();
+  // const [selectedChat, setSelectedChat] = useState();
+  // const [chats, setChats] = useState();
+  const { user, setSelectedChat, chats, setChats } = ChatState();
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  const accessChat = async () => {
+  const accessChat = async (userId) => {
+   
     try {
       setLoadingChat(true);
       const config = {
@@ -37,22 +40,29 @@ function SideDrawer() {
           Authorization: `Bearer ${user.token}`,
         },
       };
+      console.log("2. Before API call");
       const { data } = await axios.post("/api/chat", { userId }, config);
-      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
+      console.log("3. API Response:", data);
+      
+      if (!chats?.find((c) => c._id === data._id)) {
+          
+          setChats([data, ...chats]);
+        }
 
       setSelectedChat(data);
-      setLoading(false);
+      setLoadingChat(false);
+      setOpen(false); //to clse the drawer after fidning chat............
     } catch (error) {
+      console.log(error.message);
       toaster.create({
         title: "Error fetching chat!",
-        description: error.message,
+        description:error.message,
         type: "error",
         closable: true,
         duration: 5000,
         placement: "top-start",
       });
     }
-    return;
   };
 
   const handleSearch = async () => {
@@ -81,9 +91,9 @@ function SideDrawer() {
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
-      toaster({
+      toaster.create({
         title: "Error Occured!",
-        description: "Failed to load the search results",
+        description: "error",
         duration: "5000",
         closable: true,
       });
@@ -107,7 +117,9 @@ function SideDrawer() {
       p="10px"
       borderBottom="1px solid"
     >
-      <Drawer.Root placement="start">
+      <Drawer.Root placement="start"
+        open={open}
+        onOpenChange={(e)=>{setOpen(e.open)}}>
         <Drawer.Trigger asChild>
           <Button variant="ghost">
             <FaSearch />
@@ -142,7 +154,7 @@ function SideDrawer() {
                     />
                   ))
                 )}
-                {loadingChat && <Spinner ml={"auto"} display={Flex} />}
+                {loadingChat && <Spinner ml="auto" display="flex" />}
               </Drawer.Body>
               <Drawer.CloseTrigger asChild>
                 <CloseButton size="sm" />
