@@ -12,7 +12,7 @@ import { FiEye } from "react-icons/fi";
 
 const ProfileDialogs = ({ user, children }) => {
   return (
-    <Dialog.Root placement="center" size="cover">
+    <Dialog.Root placement="center" size="md">
       {children ? (
         <Dialog.Trigger asChild>
           <span>{children}</span>
@@ -20,8 +20,9 @@ const ProfileDialogs = ({ user, children }) => {
       ) : (
         <Dialog.Trigger asChild>
           <IconButton
-            display={{ base: "flex" }}
-            aria-label="View Profile"
+            //display={{ base: "flex" }}
+              aria-label="View Profile"
+             // variant={"ghost"}
           >
             <FiEye />
           </IconButton>
@@ -33,11 +34,22 @@ const ProfileDialogs = ({ user, children }) => {
 
         <Dialog.Positioner>
           <Dialog.Content>
-            <Dialog.Header>
-              <Dialog.Title>{user?.name}</Dialog.Title>
+            <Dialog.Header
+              display="flex"
+              justifyContent="center"
+              position="relative">
+              <Dialog.Title
+                fontSize="2xl"
+                fontWeight="bold"
+                textAlign="center"
+                w="100%">{user?.name}</Dialog.Title>
 
               <Dialog.CloseTrigger asChild>
-                <CloseButton size="sm" />
+                <CloseButton
+                  size="sm"
+                  position="absolute"
+                  right="12px"
+                  top="12px" />
               </Dialog.CloseTrigger>
             </Dialog.Header>
 
@@ -59,7 +71,7 @@ const ProfileDialogs = ({ user, children }) => {
                 fontFamily="Work Sans"
               >
                 Email: {user.email}
-                
+
               </Text>
             </Dialog.Body>
           </Dialog.Content>
