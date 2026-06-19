@@ -6,7 +6,7 @@ import {
   Input,
   Portal,
   Field,
-    Box,
+  Box,
   Text
 } from "@chakra-ui/react";
 import { toaster } from "../ui/toaster";
@@ -25,6 +25,7 @@ const GroupChatModals = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const { user, chats, setChats } = ChatState();
+  const [open, setOpen] = useState(false);
 
   //   const handleSubmit = async () => {
   //     if (!groupChatName || !selectedUsers) {
@@ -70,48 +71,54 @@ const GroupChatModals = ({ children }) => {
   //   };
 
   const handleSubmit = async () => {
-        if (!groupChatName || !selectedUsers) {
-            toaster.create({
-                title: "All Fields are mandatory",
-                type: "warning",
-                closable: true,
-                duration: 5000,
-                placement: "top-start"
-            });
-            return;
+    if (!groupChatName || !selectedUsers) {
+      toaster.create({
+        title: "All Fields are mandatory",
+        type: "warning",
+        closable: true,
+        duration: 5000,
+        placement: "top-start"
+      });
+      return;
+    }
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
         }
-        try {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                }
-            }
-            const { data } = await axios.post("/api/chat/group", {
-                name: groupChatName,
-                users: JSON.stringify(selectedUsers.map((u) => u._id))
-            },
-                config
-            );
-            setChats([data, ...chats]);
-            toaster.create({
-                title: "New Group Chat Created!",
-                type: "success",
-                closable: true,
-                duration: 5000,
-                placement: "top-start"
-            });
-        }
-        catch (error) {
-            toaster.create({
-                title: "Failed to Create the Chat!",
-                description: error.response.data,
-                type: "error",
-                closable: true,
-                duration: 5000,
-                placement: "top-start"
-            });
-        }
-    };
+      }
+      const { data } = await axios.post("/api/chat/group", {
+        name: groupChatName,
+        users: JSON.stringify(selectedUsers.map((u) => u._id))
+      },
+        config
+      );
+      setChats([data, ...chats]);
+      setGroupChatName("");
+      setSelectedUsers([]);
+      setSearch("");
+      setSearchResult([]);
+      setOpen(false);
+
+      toaster.create({
+        title: "New Group Chat Created!",
+        type: "success",
+        closable: true,
+        duration: 5000,
+        placement: "top-start"
+      });
+    }
+    catch (error) {
+      toaster.create({
+        title: "Failed to Create the Chat!",
+        description: error.response.data,
+        type: "error",
+        closable: true,
+        duration: 5000,
+        placement: "top-start"
+      });
+    }
+  };
   const handleDelete = (userToDelete) => {
     setSelectedUsers(selectedUsers.filter((u) => u._id !== userToDelete._id));
   };
@@ -171,9 +178,11 @@ const GroupChatModals = ({ children }) => {
   };
 
   return (
-    <Dialog.Root placement="center" motionPreset="slide-in-bottom">
+    <Dialog.Root placement="center" motionPreset="slide-in-bottom"
+      open={open}
+      onOpenChange={(e) => setOpen(e.open) }>
       <Dialog.Trigger asChild>
-        <span>{children}</span>
+        <span onClick={()=>setOpen(true)}>{children}</span>
       </Dialog.Trigger>
 
       <Portal>
