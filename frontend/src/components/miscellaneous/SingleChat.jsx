@@ -7,7 +7,7 @@ import { getSender, getSenderFull } from "../config/ChatLogic";
 import ProfileDialogs from "./ProfileDialogs";
 import UpdateGroupChatModal from "./UpdateGroupChatModal";
 
-const SingleChat = ({ fetchAgain, setfetchAgain }) => {
+const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat } = ChatState();
 
   return (
@@ -66,7 +66,7 @@ const SingleChat = ({ fetchAgain, setfetchAgain }) => {
 
                 <UpdateGroupChatModal
                   fetchAgain={fetchAgain}
-                  setfetchAgain={setfetchAgain}
+                  setFetchAgain={setFetchAgain}
                 >
                   <IconButton aria-label="Update Group" variant="ghost">
                     <FaEye size={20} />

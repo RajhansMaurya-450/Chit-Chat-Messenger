@@ -4,6 +4,7 @@ const connectDB = require("./config/db")
 const app = express();
 const userRoutes = require("./Routes/userRoutes");
 const chatRoutes = require("./Routes/chatRoutes");
+const messageRoutes = require("./Routes/messageRoutes");
 const { chats } = require("./data");
 dotenv.config();
 connectDB();
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/message",messageRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
