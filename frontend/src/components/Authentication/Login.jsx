@@ -117,7 +117,7 @@ const Login = () => {
               style={{ marginTop: 2 }}
         onClick={() => {
           setEmail("guest@example.com");
-          setPassword("123456");
+          setPassword("12345");
               }}
             > Login as Guest
             </Button>

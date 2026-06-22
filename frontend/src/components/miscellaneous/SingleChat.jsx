@@ -1,14 +1,92 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChatState } from "../../Context/ChatProvider";
-import { Box, IconButton, Text } from "@chakra-ui/react";
+import { Box, IconButton, Text, Field } from "@chakra-ui/react";
+import { Input, InputGroup } from "@chakra-ui/react";
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { FaEye } from "react-icons/fa";
 import { getSender, getSenderFull } from "../config/ChatLogic";
 import ProfileDialogs from "./ProfileDialogs";
 import UpdateGroupChatModal from "./UpdateGroupChatModal";
+import { Spinner } from "@chakra-ui/react";
+import axios from "axios";
+import { toaster } from "../ui/toaster";
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
+  const [messages, setMessage] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
+
   const { user, selectedChat, setSelectedChat } = ChatState();
+
+  const fetchMessages = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      setLoading(true);
+      const { data } = await axios.get(
+        `/api/message/${selectedChat._id}`,
+        config
+      );
+      
+      console.log(data);
+      setMessage(data);
+      setLoading(false);
+    } catch (error) {
+      toaster.create({
+        title: "Error Occured!",
+        description: "Unable to fetch Message",
+        type: "error",
+        duration: 5000,
+        position: "bottom",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, [selectedChat]);
+
+  const sendMessage = async (event) => {
+    if (event.key === "Enter" && newMessage) {
+      try {
+        const config = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+          },
+        };
+        setNewMessage("");
+        const { data } = await axios.post(
+          "/api/message",
+          {
+            content: newMessage,
+            chatId: selectedChat._id,
+          },
+          config
+        );
+        console.log(data);
+        setMessage([...messages, data]);
+
+      } catch (error) {
+        toaster.create({
+          title: "Error Occured!",
+          description: "Failed to send Message",
+          type: "error",
+          duration: 5000,
+          position: "bottom",
+        })
+      }
+    }
+  };
+
+  const typingHandler = (e) => {
+    setNewMessage(e.target.value);
+  }
 
   return (
     <>
@@ -88,7 +166,29 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             borderRadius="lg"
             overflow="hidden"
           >
-            {/* Messages Here */}
+            {loading ? (
+              <Spinner
+                size={"xl"}
+                w={20}
+                h={20}
+                alignSelf={"center"}
+                margin={"auto"}
+              />
+            ) : (
+              <div>{/*messages*/}</div>
+            )}
+
+            <Field.Root onKeyDown={sendMessage} required mt={3}>
+              <InputGroup>
+                <Input
+                  variant="filled"
+                  bg="rgba(0, 190, 73, 0.31))"
+                  placeholder="Enter a message.."
+                  onChange={typingHandler}
+                  value={newMessage}
+                />
+              </InputGroup>
+            </Field.Root>
           </Box>
         </>
       ) : (
