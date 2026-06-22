@@ -59,11 +59,11 @@ const MyChats = (fetchAgain) => {
       >
         My Chats
         <GroupChatModals>
-        <Button>
-          <FiPlus />
-          New Group Chat
+          <Button>
+            <FiPlus />
+            New Group Chat
           </Button>
-          </GroupChatModals>
+        </GroupChatModals>
       </Box>
       <Box
         display={"flex"}
@@ -90,7 +90,7 @@ const MyChats = (fetchAgain) => {
               >
                 <Text>
                   {!chat.isGroupChat
-                    ? getSender(loggedUser, chat.users)
+                    ? (loggedUser ? getSender(loggedUser, chat.users) : "Loading...")
                     : chat.chatName}
                 </Text>
               </Box>
