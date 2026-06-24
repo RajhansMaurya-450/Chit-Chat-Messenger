@@ -10,11 +10,23 @@ import UpdateGroupChatModal from "./UpdateGroupChatModal";
 import { Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { toaster } from "../ui/toaster";
+import ScrollableChat from "../ScrollableChat";
+import { useRef } from "react";
+import io from "socket.io-client";
+
+const ENDPOINT = "http://localhost:2000/";
+var socket, selectedChatCompare;
+
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessage] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
+  const messagesEndRef = useRef(null);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const { user, selectedChat, setSelectedChat } = ChatState();
 
@@ -32,10 +44,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         `/api/message/${selectedChat._id}`,
         config
       );
-      
+
       console.log(data);
       setMessage(data);
       setLoading(false);
+
+      socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toaster.create({
         title: "Error Occured!",
@@ -49,7 +63,30 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     fetchMessages();
+
+    selectedChatCompare = selectedChat;
   }, [selectedChat]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const messageHandler = (newMessageReceived) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessageReceived.chat._id
+      ) {
+        console.log("notification");
+      } else {
+        setMessage((prev) => [...prev, newMessageReceived]);
+      }
+    };
+
+    socket.on("message recieved", messageHandler);
+
+    return () => {
+      socket.off("message recieved", messageHandler);
+    };
+  }, [socketConnected]);
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
@@ -70,7 +107,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           config
         );
         console.log(data);
-        setMessage([...messages, data]);
+        socket.emit("new message", data);
+        // setMessage([...messages, data]);
+        setMessage((prev) => [...prev, data]);
+        //socket.emit("new message", data);
 
       } catch (error) {
         toaster.create({
@@ -83,6 +123,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (!user) return;
+
+    socket = io(ENDPOINT);
+    socket.emit("setup", user);
+
+    socket.on("connected", () => setSocketConnected(true));
+
+    return () => socket.disconnect();
+  }, [user]);
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
@@ -158,13 +209,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           <Box
             display="flex"
             flexDir="column"
-            justifyContent="flex-end"
             p={3}
             bg="#E8E8E8"
             w="100%"
-            h="100%"
+            h="calc(100vh - 170px)"
             borderRadius="lg"
-            overflow="hidden"
           >
             {loading ? (
               <Spinner
@@ -175,7 +224,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 margin={"auto"}
               />
             ) : (
-              <div>{/*messages*/}</div>
+              <Box flex="1" overflowY="auto">
+                <ScrollableChat messages={messages} />
+                <div ref={messagesEndRef} />
+              </Box>
             )}
 
             <Field.Root onKeyDown={sendMessage} required mt={3}>
