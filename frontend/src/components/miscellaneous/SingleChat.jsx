@@ -260,9 +260,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </Box>
             )}
 
+            {/* this logic will get triggered when user start typing */}
             <Field.Root onKeyDown={sendMessage} required mt={3}>
               {isTyping ? <div
-                style = {{ width: 120 }}>
+                style={{ width: 120 }}>
                 <Lottie animationData={animationData} loop />
               </div> : <></>
               }
