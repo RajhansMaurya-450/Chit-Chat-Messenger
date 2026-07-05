@@ -7,6 +7,7 @@ import {
   Input,
   Spinner,
   Flex,
+  Badge,
 } from "@chakra-ui/react";
 import { FaBell, FaChevronDown, FaSearch } from "react-icons/fa";
 import { ChatState } from "../../Context/ChatProvider";
@@ -17,12 +18,14 @@ import { toaster } from "../ui/toaster";
 import axios from "axios";
 import ChatLoading from "./ChatLoading";
 import UserListItem from "../userAvatar/userListItem";
+import { getSender } from "../config/ChatLogic";
+
 
 function SideDrawer() {
   // const { user } = ChatState();
   // const [selectedChat, setSelectedChat] = useState();
   // const [chats, setChats] = useState();
-  const { user, setSelectedChat, chats, setChats } = ChatState();
+  const { user, setSelectedChat, chats, setChats, notification, setNotification } = ChatState();
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,7 +34,7 @@ function SideDrawer() {
   const navigate = useNavigate();
 
   const accessChat = async (userId) => {
-   
+
     try {
       setLoadingChat(true);
       const config = {
@@ -43,11 +46,11 @@ function SideDrawer() {
       console.log("2. Before API call");
       const { data } = await axios.post("/api/chat", { userId }, config);
       console.log("3. API Response:", data);
-      
+
       if (!chats?.find((c) => c._id === data._id)) {
-          
-          setChats([data, ...chats]);
-        }
+
+        setChats([data, ...chats]);
+      }
 
       setSelectedChat(data);
       setLoadingChat(false);
@@ -56,7 +59,7 @@ function SideDrawer() {
       console.log(error.message);
       toaster.create({
         title: "Error fetching chat!",
-        description:error.message,
+        description: error.message,
         type: "error",
         closable: true,
         duration: 5000,
@@ -119,7 +122,7 @@ function SideDrawer() {
     >
       <Drawer.Root placement="start"
         open={open}
-        onOpenChange={(e)=>{setOpen(e.open)}}>
+        onOpenChange={(e) => { setOpen(e.open) }}>
         <Drawer.Trigger asChild>
           <Button variant="ghost">
             <FaSearch />
@@ -174,12 +177,43 @@ function SideDrawer() {
           <Menu.Trigger asChild>
             <Button variant="ghost">
               <FaBell size={20} />
+              {notification.length > 0 && (
+                <Badge
+                  position="absolute"
+                  top="-2px"
+                  right="-2px"
+                  colorPalette="red"
+                  borderRadius="full"
+                  minW="20px"
+                  h="20px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontSize="10px"
+                  fontWeight="bold"
+                  p={0}
+                >
+                  {notification.length}
+                </Badge>
+              )}
             </Button>
           </Menu.Trigger>
 
           <Menu.Positioner>
             <Menu.Content>
-              <Menu.Item value="notifications">No New Notifications</Menu.Item>
+              <Menu.Item value="notifications">{!notification.length && "No New Notifications"}
+                {notification.map((notif) => (
+                  <Menu.Item key={notif._id}
+                    onClick={() => {
+                      setSelectedChat(notif.chat);
+                      setNotification(notification.filter((n) => n !== notif));
+                    }}>
+                    {notif.chat.isGroupChat
+                      ? `New Message in ${notif.chat.chatName}`
+                      : `New Message form ${getSender(user, notif.chat.users)}`}
+                  </Menu.Item>
+                ))}
+              </Menu.Item>
             </Menu.Content>
           </Menu.Positioner>
         </Menu.Root>
