@@ -11,6 +11,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-     include: ["lottie-react"],
+     include: ["lottie-react"], //added for the lottie animation new version
    },
 })
