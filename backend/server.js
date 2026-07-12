@@ -79,6 +79,7 @@ io.on("connection", (socket) => {
             socket.in(user._id).emit("message recieved", newMessageReceived);
         });
     });
+    //socket off..............
     socket.off("setup", () => {
         console.log("USER DISCONNECTED");
         socket.leave(userData._id);
