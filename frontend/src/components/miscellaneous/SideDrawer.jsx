@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -32,6 +32,33 @@ function SideDrawer() {
   const [loadingChat, setLoadingChat] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+
+  const fetchNotifications = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      const { data } = await axios.get(
+        "/api/notification",
+        config
+      );
+
+      setNotification(data);
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
+
 
   const accessChat = async (userId) => {
 
@@ -193,7 +220,8 @@ function SideDrawer() {
                   fontWeight="bold"
                   p={0}
                 >
-                  {notification.length}
+
+                  {notification.length > 99 ? "99+" : notification.length}
                 </Badge>
               )}
             </Button>
@@ -206,11 +234,12 @@ function SideDrawer() {
                   <Menu.Item key={notif._id}
                     onClick={() => {
                       setSelectedChat(notif.chat);
-                      setNotification(notification.filter((n) => n !== notif));
+                      setNotification((prev) =>
+                        prev.filter((n) => n._id !== notif._id));
                     }}>
                     {notif.chat.isGroupChat
                       ? `New Message in ${notif.chat.chatName}`
-                      : `New Message form ${getSender(user, notif.chat.users)}`}
+                      : `New Message from ${notif.sender?.name || "Unknown User"}`}
                   </Menu.Item>
                 ))}
               </Menu.Item>
@@ -254,5 +283,6 @@ function SideDrawer() {
     </Box>
   );
 }
+
 
 export default SideDrawer;
