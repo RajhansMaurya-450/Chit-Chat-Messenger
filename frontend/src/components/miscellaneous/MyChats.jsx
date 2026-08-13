@@ -7,7 +7,7 @@ import { getSender } from "../config/ChatLogic";
 import { FiPlus } from "react-icons/fi";
 import GroupChatModals from "./GroupChatModals";
 
-const MyChats = (fetchAgain) => {
+const MyChats = ({fetchAgain}) => {
   const [loggedUser, setLoggedUser] = useState();
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
 
