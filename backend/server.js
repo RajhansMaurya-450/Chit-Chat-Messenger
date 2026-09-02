@@ -25,6 +25,15 @@ app.get("/", (req, res) => {
 
 })
 
+//Health check route.....
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "OK",
+        message: "Server is healthy",
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
